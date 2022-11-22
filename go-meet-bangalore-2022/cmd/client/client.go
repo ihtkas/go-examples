@@ -47,22 +47,22 @@ func main() {
 
 	opt1 := loadgen.WithExecLimitOpt(100000)
 	opt2 := loadgen.WithExecLimitOpt(100000)
-	opt3 := loadgen.WithExecLimitOpt(1000)
-	opt4 := loadgen.WithExecLimitOpt(1000)
+	opt3 := loadgen.WithExecLimitOpt(100000)
+	opt4 := loadgen.WithExecLimitOpt(100000)
 	fn1 := loadgen.NewFunction(
-		[]*loadgen.Stmt{loadgen.NewStmt(streamEvents(1), 1, time.Second, time.Second, histOpt1, errOpt1)},
-		10, opt1,
+		[]*loadgen.Stmt{loadgen.NewStmt(streamEvents(cl1, 1), 2, 5*time.Second, 5*time.Second, histOpt1, errOpt1)},
+		100, opt1,
 	)
 	fn2 := loadgen.NewFunction(
-		[]*loadgen.Stmt{loadgen.NewStmt(streamEvents(1), 1, time.Second, time.Second, histOpt2, errOpt2)},
-		10, opt2,
+		[]*loadgen.Stmt{loadgen.NewStmt(streamEvents(cl2, 1), 2, 5*time.Second, 5*time.Second, histOpt2, errOpt2)},
+		100, opt2,
 	)
 	fn3 := loadgen.NewFunction(
-		[]*loadgen.Stmt{loadgen.NewStmt(streamEvents(10), 10, time.Second, time.Second, histOpt3, errOpt3)},
+		[]*loadgen.Stmt{loadgen.NewStmt(streamEvents(cl1, 10000), 2, 5*time.Second, 5*time.Second, histOpt3, errOpt3)},
 		1, opt3,
 	)
 	fn4 := loadgen.NewFunction(
-		[]*loadgen.Stmt{loadgen.NewStmt(streamEvents(10), 10, time.Second, time.Second, histOpt4, errOpt4)},
+		[]*loadgen.Stmt{loadgen.NewStmt(streamEvents(cl2, 10000), 2, 5*time.Second, 5*time.Second, histOpt4, errOpt4)},
 		1, opt4,
 	)
 	ctx := context.Background()
@@ -71,17 +71,17 @@ func main() {
 	fmt.Println("error:", lg.StartSever(":2112"))
 }
 
-func streamEvents(n int) loadgen.Evaluator {
+func streamEvents(cl eventspb.EventsServiceClient, n int) loadgen.Evaluator {
 	return func(ctx context.Context, iter uint, payload map[string]interface{}) (contRepeat bool, err error) {
 		streamCtx, _ := context.WithTimeout(context.Background(), 10*time.Second)
-		cl, err := cl1.PublishEvent(streamCtx)
+		publishCl, err := cl.PublishEvent(streamCtx)
 		if err != nil {
 			return false, err
 		}
 		for i := 0; i < n; i++ {
 			event := make([]byte, 4)
 			rand.Read(event)
-			err = cl.Send(&eventspb.PublishEventRequest{
+			err = publishCl.Send(&eventspb.PublishEventRequest{
 				Event: event,
 			})
 			if err != nil {
@@ -90,8 +90,8 @@ func streamEvents(n int) loadgen.Evaluator {
 			}
 		}
 
-		err = cl.CloseSend()
-		log.Println("published events...")
-		return false, err
+		err = publishCl.CloseSend()
+		log.Println("published events...", n)
+		return true, err
 	}
 }

@@ -4,14 +4,11 @@ import (
 	eventspb "github.com/ihtkas/go-examples/go-meet-bangalore-2022/gen/events"
 	"io"
 	"log"
-	"regexp"
 )
 
 type EventsService struct {
 	eventspb.UnimplementedEventsServiceServer
 }
-
-var cluesRegex = regexp.MustCompile(`Clue: "(.*)"`)
 
 func (s *EventsService) PublishEvent(server eventspb.EventsService_PublishEventServer) error {
 	for {
