@@ -28,6 +28,10 @@ func (s *EventsService) PublishEvent(server eventspb.EventsService_PublishEventS
 				}
 				return nil
 			}
+			if err != nil {
+				log.Println(err)
+				return nil
+			}
 			log.Println("received event req...", len(req.Event))
 		}
 	}

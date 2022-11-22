@@ -16,20 +16,20 @@ import (
 
 var cl1, cl2 eventspb.EventsServiceClient
 
-var dport int
-var sdport int
+var port1 int
+var port2 int
 
 func main() {
 	log.SetFlags(log.Lshortfile | log.LstdFlags)
-	flag.IntVar(&dport, "port1", 8123, "port to host gRPC server for events service")
-	flag.IntVar(&sdport, "port2", 8124, "port to host gRPC server for smart events service")
+	flag.IntVar(&port1, "port1", 8123, "port to host gRPC server for events service")
+	flag.IntVar(&port2, "port2", 8124, "port to host gRPC server for smart events service")
 	flag.Parse()
 
-	dconn, err := grpc.Dial("127.0.0.1:"+strconv.Itoa(dport), grpc.WithTransportCredentials(insecure.NewCredentials()))
+	dconn, err := grpc.Dial("127.0.0.1:"+strconv.Itoa(port1), grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		log.Fatal(err)
 	}
-	sdconn, err := grpc.Dial("127.0.0.1:"+strconv.Itoa(sdport), grpc.WithTransportCredentials(insecure.NewCredentials()))
+	sdconn, err := grpc.Dial("127.0.0.1:"+strconv.Itoa(port2), grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -73,7 +73,8 @@ func main() {
 
 func streamEvents(n int) loadgen.Evaluator {
 	return func(ctx context.Context, iter uint, payload map[string]interface{}) (contRepeat bool, err error) {
-		cl, err := cl1.PublishEvent(ctx)
+		streamCtx, _ := context.WithTimeout(context.Background(), 10*time.Second)
+		cl, err := cl1.PublishEvent(streamCtx)
 		if err != nil {
 			return false, err
 		}
@@ -87,9 +88,10 @@ func streamEvents(n int) loadgen.Evaluator {
 				log.Println(err)
 				return false, err
 			}
-			return false, nil
 		}
+
 		err = cl.CloseSend()
+		log.Println("published events...")
 		return false, err
 	}
 }

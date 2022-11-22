@@ -14,19 +14,19 @@ import (
 	"strconv"
 )
 
-var dport int
-var sdport int
+var port1 int
+var port2 int
 
 func main() {
 	log.SetFlags(log.Lshortfile | log.LstdFlags)
-	flag.IntVar(&dport, "dport", 8123, "port to host gRPC server for events service")
-	flag.IntVar(&sdport, "sdport", 8124, "port to host gRPC server for smart events service")
+	flag.IntVar(&port1, "port1", 8123, "port to host gRPC server for events service")
+	flag.IntVar(&port2, "port2", 8124, "port to host gRPC server for smart events service")
 	flag.Parse()
 	eg := &errgroup.Group{}
 	eg.Go(func() error {
 		s := grpc.NewServer(grpc.MaxRecvMsgSize(100000000))
 		eventspb.RegisterEventsServiceServer(s, &eventsservice.EventsService{})
-		l, err := net.Listen("tcp", "127.0.0.1:"+strconv.Itoa(dport))
+		l, err := net.Listen("tcp", "127.0.0.1:"+strconv.Itoa(port1))
 		if err != nil {
 			log.Println(err)
 			return err
@@ -42,7 +42,7 @@ func main() {
 	eg.Go(func() error {
 		s := grpc.NewServer(grpc.MaxRecvMsgSize(100000000))
 		eventspb.RegisterEventsServiceServer(s, &eventsservice.EventsService{})
-		l, err := net.Listen("tcp", "127.0.0.1:"+strconv.Itoa(sdport))
+		l, err := net.Listen("tcp", "127.0.0.1:"+strconv.Itoa(port2))
 		if err != nil {
 			log.Println(err)
 			return err
