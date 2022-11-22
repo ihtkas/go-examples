@@ -2,8 +2,8 @@ package main
 
 import (
 	"flag"
-	detectiveservice "github.com/ihtkas/go-examples/go-meet-bangalore-2022/detective-service"
-	detectivepb "github.com/ihtkas/go-examples/go-meet-bangalore-2022/gen/detective"
+	eventsservice "github.com/ihtkas/go-examples/go-meet-bangalore-2022/events"
+	eventspb "github.com/ihtkas/go-examples/go-meet-bangalore-2022/gen/events"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"golang.org/x/sync/errgroup"
 	"google.golang.org/grpc"
@@ -19,19 +19,19 @@ var sdport int
 
 func main() {
 	log.SetFlags(log.Lshortfile | log.LstdFlags)
-	flag.IntVar(&dport, "dport", 8123, "port to host gRPC server for detective service")
-	flag.IntVar(&sdport, "sdport", 8124, "port to host gRPC server for smart detective service")
+	flag.IntVar(&dport, "dport", 8123, "port to host gRPC server for events service")
+	flag.IntVar(&sdport, "sdport", 8124, "port to host gRPC server for smart events service")
 	flag.Parse()
 	eg := &errgroup.Group{}
 	eg.Go(func() error {
 		s := grpc.NewServer(grpc.MaxRecvMsgSize(100000000))
-		detectivepb.RegisterDetectiveServer(s, &detectiveservice.DetectiveService{})
+		eventspb.RegisterEventsServiceServer(s, &eventsservice.EventsService{})
 		l, err := net.Listen("tcp", "127.0.0.1:"+strconv.Itoa(dport))
 		if err != nil {
 			log.Println(err)
 			return err
 		}
-		log.Println("starting detective server...")
+		log.Println("starting events server...")
 		err = s.Serve(l)
 		if err != nil {
 			log.Println(err)
@@ -41,13 +41,13 @@ func main() {
 	})
 	eg.Go(func() error {
 		s := grpc.NewServer(grpc.MaxRecvMsgSize(100000000))
-		detectivepb.RegisterDetectiveServer(s, &detectiveservice.DetectiveService{})
+		eventspb.RegisterEventsServiceServer(s, &eventsservice.EventsService{})
 		l, err := net.Listen("tcp", "127.0.0.1:"+strconv.Itoa(sdport))
 		if err != nil {
 			log.Println(err)
 			return err
 		}
-		log.Println("starting smart detective server...")
+		log.Println("starting smart events server...")
 		err = s.Serve(l)
 		if err != nil {
 			log.Println(err)

@@ -5,19 +5,15 @@ package ihtkas.goexamples.gomeet22;
 
 // GO_ROOT="$(go env GOPATH)/src"
 // protoc --go-grpc_out=$GO_ROOT --go_out=$GO_ROOT ./go-meet-bangalore-2022/protos/service.proto
-option go_package = "github.com/ihtkas/go-examples/go-meet-bangalore-2022/gen/detective;detectivepb";
+option go_package = "github.com/ihtkas/go-examples/go-meet-bangalore-2022/gen/events;eventspb";
 
-service Detective {
-  //  FindClues searches for a pattern in the given input content of the form <Clues: ".*"> and
-  //  returns a new line separated string with all the matched string.
-  rpc FindClues (FindCluesRequest) returns (FindCluesResponse) {}
+service EventsService {
+  rpc PublishEvent (stream PublishEventRequest) returns (stream PublishEventResponse) {}
 }
 
 
-message FindCluesRequest {
-  string content = 1;
+message PublishEventRequest {
+  bytes event = 1;
 }
 
-message FindCluesResponse {
-  string formatted_secret = 1;
-}
+message PublishEventResponse {}
