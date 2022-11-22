@@ -29,7 +29,7 @@ func main() {
 	flag.Parse()
 	eg := &errgroup.Group{}
 	eg.Go(func() error {
-		s := grpc.NewServer(grpc.MaxRecvMsgSize(100000000), grpc.StreamInterceptor(interceptor.StreamInterceptor()))
+		s := grpc.NewServer(grpc.StreamInterceptor(interceptor.StreamInterceptor()))
 		eventspb.RegisterEventsServiceServer(s, &eventsservice.EventsService{})
 		l, err := net.Listen("tcp", "127.0.0.1:"+strconv.Itoa(port1))
 		if err != nil {
@@ -45,7 +45,7 @@ func main() {
 		return nil
 	})
 	eg.Go(func() error {
-		s := grpc.NewServer(grpc.MaxRecvMsgSize(100000000), grpc.StreamInterceptor(interceptor.StreamInterceptorV2()))
+		s := grpc.NewServer(grpc.StreamInterceptor(interceptor.StreamInterceptorV2()))
 		eventspb.RegisterEventsServiceServer(s, &eventsservice.EventsService{})
 		l, err := net.Listen("tcp", "127.0.0.1:"+strconv.Itoa(port2))
 		if err != nil {
