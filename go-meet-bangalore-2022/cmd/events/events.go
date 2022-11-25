@@ -16,43 +16,44 @@ import (
 	"strconv"
 )
 
-var port1 int
-var port2 int
+var port int
+var metricsPort int
 
 var enableStackDriver bool
+var interceptorOpt string
+
+const (
+	InterceptorV1 = "v1"
+	InterceptorV2 = "v2"
+)
 
 func main() {
 	log.SetFlags(log.Lshortfile | log.LstdFlags)
-	flag.IntVar(&port1, "port1", 8123, "port to host gRPC server for events service")
-	flag.IntVar(&port2, "port2", 8124, "port to host gRPC server for smart events service")
+	flag.IntVar(&port, "port", 8123, "port to host gRPC server for events service")
+	flag.IntVar(&metricsPort, "metricsPort", 2113, "port to host metrics server for events service")
 	flag.BoolVar(&enableStackDriver, "enableStackDriver", false, "enable continuous profile monitoring using google cloud profiler")
+	flag.StringVar(&interceptorOpt, "interceptor", InterceptorV1, "Version of stream interceptor to use. Choices: v1, v2. Default is v1")
+
 	flag.Parse()
 	eg := &errgroup.Group{}
 	eg.Go(func() error {
-		s := grpc.NewServer(grpc.StreamInterceptor(interceptor.StreamInterceptor()))
+		var streamInterceptor grpc.StreamServerInterceptor
+		switch interceptorOpt {
+		case InterceptorV1:
+			streamInterceptor = interceptor.StreamInterceptor()
+		case InterceptorV2:
+			streamInterceptor = interceptor.StreamInterceptorV2()
+		default:
+			log.Fatal("Invalid interceptor. Pass v1 or v2")
+		}
+		s := grpc.NewServer(grpc.StreamInterceptor(streamInterceptor))
 		eventspb.RegisterEventsServiceServer(s, &eventsservice.EventsService{})
-		l, err := net.Listen("tcp", "127.0.0.1:"+strconv.Itoa(port1))
+		l, err := net.Listen("tcp", "127.0.0.1:"+strconv.Itoa(port))
 		if err != nil {
 			log.Println(err)
 			return err
 		}
-		log.Println("starting events server...")
-		err = s.Serve(l)
-		if err != nil {
-			log.Println(err)
-			return err
-		}
-		return nil
-	})
-	eg.Go(func() error {
-		s := grpc.NewServer(grpc.StreamInterceptor(interceptor.StreamInterceptorV2()))
-		eventspb.RegisterEventsServiceServer(s, &eventsservice.EventsService{})
-		l, err := net.Listen("tcp", "127.0.0.1:"+strconv.Itoa(port2))
-		if err != nil {
-			log.Println(err)
-			return err
-		}
-		log.Println("starting smart events server...")
+		log.Println("starting events server...", port)
 		err = s.Serve(l)
 		if err != nil {
 			log.Println(err)
@@ -62,7 +63,7 @@ func main() {
 	})
 	eg.Go(func() error {
 		http.Handle("/metrics", promhttp.Handler())
-		err := http.ListenAndServe(":2113", nil)
+		err := http.ListenAndServe(":"+strconv.Itoa(metricsPort), nil)
 		if err != nil {
 			log.Println(err)
 			return err
@@ -72,7 +73,7 @@ func main() {
 	if enableStackDriver {
 		eg.Go(func() error {
 			cfg := profiler.Config{
-				Service:        "events",
+				Service:        "events" + strconv.Itoa(port),
 				ServiceVersion: "1.0.0",
 				ProjectID:      "crucial-guard-369408",
 			}
