@@ -1,0 +1,32 @@
+syntax = "proto3";
+
+
+package ihtkas.goexamples.gomeet22;
+
+// GO_ROOT="$(go env GOPATH)/src"
+// protoc --go-grpc_out=$GO_ROOT --go_out=$GO_ROOT ./go-meet-bangalore-2022/protos/service.proto
+option go_package = "github.com/ihtkas/go-examples/go-meet-bangalore-2022/gen/events;eventspb";
+
+service EventsService {
+  rpc PublishEvent (stream PublishEventRequest) returns (stream PublishEventResponse) {}
+}
+
+
+message PublishEventRequest {
+  Header header = 1;
+  bytes event = 2;
+}
+
+message PublishEventResponse {}
+
+message Header {
+  string field1 = 1;
+  string field2 = 2;
+  string field3 = 3;
+  string field4 = 4;
+  string field5 = 5;
+  string field6 = 6;
+  string field7 = 7;
+  string field8 = 8;
+  string field9 = 9;
+}
