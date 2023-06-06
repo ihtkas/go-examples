@@ -4,7 +4,7 @@ go 1.19
 
 require (
 	cloud.google.com/go/profiler v0.3.1
-	github.com/ihtkas/go-examples v0.0.0-00010101000000-000000000000
+	github.com/ihtkas/go-examples v0.1.2
 	github.com/prometheus/client_golang v1.15.1
 	golang.org/x/sync v0.2.0
 	google.golang.org/grpc v1.55.0
