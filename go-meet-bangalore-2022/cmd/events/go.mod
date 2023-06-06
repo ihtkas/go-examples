@@ -2,8 +2,6 @@ module github.com/ihtkas/go-examples/go-meet-bangalore-2022/cmd/events
 
 go 1.19
 
-replace github.com/ihtkas/go-examples => ../../..
-
 require (
 	cloud.google.com/go/profiler v0.3.1
 	github.com/ihtkas/go-examples v0.0.0-00010101000000-000000000000
