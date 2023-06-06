@@ -63,6 +63,8 @@ github.com/googleapis/gax-go/v2 v2.7.0 h1:IcsPKeInNvYi7eqSaDjiZqDDKu5rsmunY0Y1Yu
 github.com/googleapis/gax-go/v2 v2.7.0/go.mod h1:TEop28CZZQ2y+c0VxMUmu1lV+fQx57QpBWsYpwqHJx8=
 github.com/ihtkas/go-examples v0.1.2 h1:JFVZtpDnF6c4UOXvFKAWIqq/QAxHJyxi/E++X7zh8J8=
 github.com/ihtkas/go-examples v0.1.2/go.mod h1:ro/2cWPTVVSeGVRyA8WBL34eaDjYC26tjwV5Wv2y7Bk=
+github.com/ihtkas/go-examples v0.1.3 h1:svY8Ib+GOnU13qqAWN0DJfZIg11mCh2gDJYkoLnb7Bo=
+github.com/ihtkas/go-examples v0.1.3/go.mod h1:ro/2cWPTVVSeGVRyA8WBL34eaDjYC26tjwV5Wv2y7Bk=
 github.com/matttproud/golang_protobuf_extensions v1.0.4 h1:mmDVorXM7PCGKw94cs5zkfA9PSy5pEvNWRP0ET0TIVo=
 github.com/matttproud/golang_protobuf_extensions v1.0.4/go.mod h1:BSXmuO+STAnVfrANrmjBb36TMTDstsz7MSK+HVaYKv4=
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
